@@ -1,27 +1,26 @@
 # syntax=docker/dockerfile:1.4
-FROM php:8.4-fpm-alpine
+FROM php:8.4-fpm
 
-# Instalar dependências do sistema (Alpine usa apk)
-RUN --mount=type=cache,target=/var/cache/apk,sharing=locked \
-    apk add --no-cache \
+# Instalar dependências do sistema (Debian usa apt)
+RUN apt-get update && apt-get install -y \
     git \
     curl \
     zip \
     unzip \
-    postgresql-dev \
+    libpq-dev \
     libpng-dev \
     libxml2-dev \
-    oniguruma-dev \
+    libonig-dev \
     supervisor \
-    # Dependências para compilação (serão necessárias)
     autoconf \
     g++ \
     make \
-    linux-headers
+    rsync \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Instalar extensões PHP nativas (aproveita cache)
-RUN --mount=type=cache,target=/tmp/pear \
-    docker-php-ext-install -j$(nproc) \
+
+# Instalar extensões PHP nativas
+RUN docker-php-ext-install -j$(nproc) \
     pdo \
     pdo_mysql \
     pdo_pgsql \
@@ -31,15 +30,14 @@ RUN --mount=type=cache,target=/tmp/pear \
     bcmath \
     gd
 
-# Instalar extensões PECL (aproveita cache)
-RUN --mount=type=cache,target=/tmp/pear \
-    pecl install mongodb redis \
+# Instalar extensões PECL
+RUN pecl install mongodb redis \
     && docker-php-ext-enable mongodb redis
 
-# Copiar Composer (camada leve)
+# Copiar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copiar configurações customizadas (alterações aqui não refazem layers acima)
+# Copiar configurações customizadas
 COPY docker/php/php.ini /usr/local/etc/php/php.ini
 COPY docker/php/www.conf /usr/local/etc/php-fpm.d/www.conf
 

@@ -7,6 +7,8 @@ use App\Http\Requests\StorePontoTuristicoRequest;
 use App\Http\Requests\UpdatePontoTuristicoRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class PontosTuristicosController extends Controller
 {
@@ -48,7 +50,26 @@ class PontosTuristicosController extends Controller
 
         // Paginação
         $perPage = $request->input('per_page', 15);
-        $pontos = $query->paginate($perPage);
+
+        // Tentar buscar do cache se não houver filtros ativos
+        $hasFilters = $request->hasAny(['search', 'cidade', 'estado', 'nota_minima', 'order_by', 'order']);
+        
+        if (!$hasFilters && Cache::store('redis')->has('pontos_turisticos:all')) {
+            $pontosCollection = Cache::store('redis')->get('pontos_turisticos:all');
+            
+            $currentPage = $request->input('page', 1);
+            $currentItems = $pontosCollection->slice(($currentPage - 1) * $perPage, $perPage)->values(); // values() to reset keys
+            
+            $pontos = new LengthAwarePaginator(
+                $currentItems,
+                $pontosCollection->count(),
+                $perPage,
+                $currentPage,
+                ['path' => $request->url(), 'query' => $request->query()]
+            );
+        } else {
+            $pontos = $query->paginate($perPage);
+        }
 
         // Buscar estados e cidades distintos para filtros
         $estados = PontoTuristico::distinct()->pluck('estado')->sort();
