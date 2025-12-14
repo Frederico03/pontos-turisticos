@@ -1,59 +1,102 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sistema de Turismo e Viagens
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Este projeto consiste em um sistema web completo (Backend + Frontend) para o gerenciamento e consulta de pontos turísticos, desenvolvido para atender a requisitos robustos de persistência poliglota e escalabilidade.
 
-## About Laravel
+## 🚀 Tecnologias Utilizadas
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+A stack tecnológica foi escolhida para alinhar produtividade com alta performance:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Backend**: [Laravel](https://laravel.com) (PHP)
+  - Escolhido pela sua robustez, segurança e facilidade de integração com múltiplos bancos de dados.
+- **Frontend**: Blade Templates + Vue.js (via [Vite](https://vitejs.dev))
+  - Interface dinâmica e responsiva com TailwindCSS.
+- **Containerização**: [Docker](https://www.docker.com) & Docker Compose
+  - Ambiente de desenvolvimento isolado e reproduzível.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 💾 Persistência de Dados (Abordagem Híbrida)
 
-## Learning Laravel
+O sistema utiliza uma abordagem de **Persistência Poliglota** para otimizar o armazenamento de acordo com a natureza do dado:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+1.  **PostgreSQL (Relacional)**:
+    - Entidades estruturadas e críticas: `Pontos Turísticos`, `Usuários`, `Hospedagens`.
+    - Garante integridade referencial e consistência (ACID).
+    
+2.  **MongoDB (NoSQL)**:
+    - Dados flexíveis e volumosos: `Comentários` (com suporte a aninhamento) e Metadados de `Fotos`.
+    - Permite alta escalabilidade para dados não estruturados.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+3.  **Redis (Chave-Valor)**:
+    - **Cache**: Armazena sessões e dados acessados frequentemente (ex: listagem de pontos) para reduzir a carga no banco principal e reduzir latência.
 
-## Laravel Sponsors
+4.  **Filesystem (Disco)**:
+    - Armazenamento físico das imagens (via Docker Volumes), com referências salvas no MongoDB.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+---
 
-### Premium Partners
+## 📋 Funcionalidades Implementadas
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### Requisitos Funcionais
+- [x] **Autenticação**: Login e Registro de usuários (Laravel Breeze).
+- [x] **CRUD de Pontos Turísticos**: Gerenciamento completo (Nome, Descrição, Geolocalização).
+- [x] **Upload de Fotos**: Imagens salvas em disco com metadados no MongoDB.
+- [x] **Avaliações e Comentários**: Sistema híbrido onde avaliações (notas) podem impactar métricas relacionais, enquanto comentários detalhados residem no NoSQL.
+- [x] **Hospedagens**: Associação de locais de estadia aos pontos turísticos.
+- [x] **Geolocalização**: Armazenamento de Latitude/Longitude.
 
-## Contributing
+### Requisitos Não Funcionais
+- **Execução via Docker**: Setup completo com um único comando.
+- **Performance**: Uso de filas (Queue) e Cache (Redis).
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## 🛠️ Como Executar o Projeto
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Certifique-se de ter o **Docker** e **Docker Compose** instalados.
 
-## Security Vulnerabilities
+### Passo Rápido (Automático)
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Utilize o script de inicialização preparado para seu sistema operacional. Ele irá subir os containers, instalar dependências do PHP (Composer), rodar migrações e iniciar o servidor frontend.
 
-## License
+**Windows:**
+```powershell
+.\start.bat
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+**Linux / Mac / WSL:**
+```bash
+chmod +x start.sh
+./start.sh
+```
+
+### Passo Manual (Caso prefira)
+
+1. **Subir Containers**:
+   ```bash
+   docker compose up --build -d
+   ```
+
+2. **Instalar Dependências e Configurar Banco**:
+   ```bash
+   docker exec -it turismo-app bash -c "composer install && php artisan migrate:fresh --seed && php artisan key:generate"
+   ```
+
+3. **Iniciar Frontend (Local)**:
+   ```bash
+   npm run dev
+   ```
+
+O sistema estará acessível em: `http://localhost:8000`
+
+---
+
+## 📂 Estrutura de Pastas Chave
+
+- `app/Models`: Modelos Eloquent (Postgres) e Moloquent (MongoDB).
+- `docker/`: Configurações de infraestrutura (Nginx, PHP).
+- `docker-compose.yml`: Orquestração dos serviços (App, DBs, Cache).
+- `routes/web.php`: Rotas da aplicação.
+
+## 📝 Decisões de Projeto
+
+- **Laravel vs Java**: Optou-se pelo Laravel devido à sua sintaxe expressiva e ecossistema rico (Eloquent, Sail, Breeze) que acelera o desenvolvimento de aplicações complexas sem sacrificar a robustez exigida para integrações com múltiplos SGBDs.
+- **Redis para Cache**: Implementado para mitigar gargalos de performance em consultas repetitivas de leitura.

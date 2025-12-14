@@ -123,7 +123,6 @@ class PontosTuristicosController extends Controller
                 ->with('success', 'Ponto turístico criado com sucesso!');
         } catch (\Exception $e) {
             DB::rollBack();
-            dd($e->getMessage());
 
             if ($request->wantsJson()) {
                 return response()->json([
